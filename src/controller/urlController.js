@@ -26,14 +26,16 @@ const valid = function (value) {
 //======================comment============================//
 
 const urlShort = async (req, res) => {
-    let data = req.body
-    
+    //console.log(req)
+    try{
+        let data = req.body
+        let {longUrl} = data
     if (Object.keys(data).length==0) return res.status(400).send({status:false, msg:"Body can't be empty"})
-    let {longUrl} = data
+    
     if(!longUrl) return res.status(400).send({status:false, msg:"longUrl is required"})
     if(!valid(longUrl)) return res.status(400).send({status:false, msg:"We cannot enter empty string"})
     if (!regForLink(longUrl)) return res.status(400).send({status:false, msg:"Please provide a valid long url"})
-    // if (!)
+    
     let shortUrlId = shortid.generate().toLowerCase();
     let baseUrl = "http://localhost:3000/"
     let obj = {
@@ -41,22 +43,29 @@ const urlShort = async (req, res) => {
     "longUrl": longUrl,
     "shortUrl": baseUrl+shortUrlId
     }
-    // console.log(req)
+     
     let findData = await urlModel.findOne({longUrl: longUrl}).select({_id: 0, __v:0})
     if (findData) return res.status(200).send({status:true, msg:findData})
     let final = await urlModel.create(obj);
     res.status(201).send({status: true, msg: obj})
     
+    }catch(err){
+        return res.status(500).send({status:false,message:err.message})
+    }
 }
 
 //=======================================================================//
 
 let getData = async (req, res) => {
-    let urlCode = req.params.urlCode
+    try{
+        let urlCode = req.params.urlCode
     if(!shortid.isValid(urlCode)) return res.status(400).send({status: false, msg: "Please provide a valid URL code"}) 
     let findLongUrl = await urlModel.findOne({urlCode: urlCode});
     if (!findLongUrl) return res.status(404).send({status: false, msg: "Url code not found"})
     res.status(302).redirect(findLongUrl.longUrl)
+    }catch(err){
+        return res.status(500).send({status:false,message:err.message})
+    }
 
 }
 
