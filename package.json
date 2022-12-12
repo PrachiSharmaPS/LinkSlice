@@ -10,10 +10,15 @@
     "type": "git",
     "url": "git+https://github.com/Dhreetiman/urlShortner.git"
   },
-  "author": "Dhreetiman Prasad",
+  "author": "Dhreetiman Prasad, Ashish Ingle, Subodh pal, Ankush Rai",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Dhreetiman/urlShortner/issues"
   },
-  "homepage": "https://github.com/Dhreetiman/urlShortner#readme"
+  "homepage": "https://github.com/Dhreetiman/urlShortner#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^6.8.0",
+    "shortid": "^2.2.16"
+  }
 }
