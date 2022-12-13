@@ -1,16 +1,9 @@
 const urlModel = require("../model/urlModel")
 const shortid = require('shortid');
+const axios = require("axios")
  
 
 //=================validation===========================//
-
-const regForLink = function (value) {
-    return /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi.test(value);
-};
-
-const regForExtension = function (value) {
-    return /^https?:\/\/.*\/.*\.(png|gif|webp|jpeg|jpg)\??.*$/.test(value);
-};
 
 const valid = function (value) {
     if (typeof value == "undefined" || typeof value == null) {
@@ -23,7 +16,7 @@ const valid = function (value) {
   };
   
 
-//======================comment============================//
+//========================[Function for Create Shorten URL]==========================//
 
 const urlShort = async (req, res) => {
     //console.log(req)
@@ -34,7 +27,17 @@ const urlShort = async (req, res) => {
     
     if(!longUrl) return res.status(400).send({status:false, msg:"longUrl is required"})
     if(!valid(longUrl)) return res.status(400).send({status:false, msg:"We cannot enter empty string"})
-    if (!regForLink(longUrl)) return res.status(400).send({status:false, msg:"Please provide a valid long url"})
+
+    let option = {
+        method: 'get',
+        url: longUrl
+    }
+    let validateUrl = await axios(option)
+        .then(() => longUrl)    
+        .catch(() => null)      
+
+    if (!validateUrl) { return res.status(400).send({ status: false, message: `This Link: ${longUrl} is not Valid URL.` }) }
+
     
     let shortUrlId = shortid.generate().toLowerCase();
     let baseUrl = "http://localhost:3000/"
@@ -54,7 +57,7 @@ const urlShort = async (req, res) => {
     }
 }
 
-//=======================================================================//
+//==============================[Function to Fetch the URL Data from DB]=========================================//
 
 let getData = async (req, res) => {
     try{
