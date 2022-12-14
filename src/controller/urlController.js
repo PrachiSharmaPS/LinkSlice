@@ -80,7 +80,7 @@ const urlShort = async (req, res) => {
                 "shortUrl": baseUrl + shortUrlId
             }
 
-            let findData = await urlModel.findOne({ longUrl: longUrl }).select({ _id: 0, __v: 0 })
+           let findData = await urlModel.findOne({ longUrl: longUrl }).select({ _id: 0, __v: 0 })
 
             if (findData) {
                 //================= create in redis===================
@@ -101,7 +101,10 @@ const urlShort = async (req, res) => {
 
 let getData = async (req, res) => {
     try {
-        let cahcedProfileData = await GET_ASYNC(`${req.params.urlCode}`)
+
+        let findLongUrl = await urlModel.findOne({ urlCode: urlCode });
+        
+        let cahcedProfileData = await GET_ASYNC(`${findLongUrl.longUrl}`)
 
         if (cahcedProfileData) {
             let txt = JSON.parse(cahcedProfileData)
@@ -112,10 +115,10 @@ let getData = async (req, res) => {
             let urlCode = req.params.urlCode
             if (!shortid.isValid(urlCode)) return res.status(400).send({ status: false, message: "Please provide a valid URL code" })
 
-            let findLongUrl = await urlModel.findOne({ urlCode: urlCode });
+            // let findLongUrl = await urlModel.findOne({ urlCode: urlCode });
             if (!findLongUrl) return res.status(404).send({ status: false, message: "Url code not found" })
 
-            await SET_ASYNC(`${req.params.urlCode}`,60 * 5, JSON.stringify(findLongUrl))
+            await SET_ASYNC(`${findLongUrl.longUrl}`,60 * 5, JSON.stringify(findLongUrl))
             res.status(302).redirect(findLongUrl.longUrl)
         }
     } catch (err) {
