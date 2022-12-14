@@ -47,51 +47,51 @@ const urlShort = async (req, res) => {
         let data = req.body
         let { longUrl } = data
 
-                    // =======================Get from redis=======================
-        let cahcedProfileData = await GET_ASYNC(`${longUrl}`)
+        
+        //========================================================
+                        
+                        if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "Body can't be empty" })
+                        
+                        if (!longUrl) return res.status(400).send({ status: false, message: "longUrl is required" })
+                        if (!valid(longUrl)) return res.status(400).send({ status: false, message: "We cannot enter empty string" })
+                        
+                        let option = {
+                            method: 'get',
+                            url: longUrl
+                        }
+                        let validateUrl = await axios(option)
+                        .then(() => longUrl)
+                        .catch(() => null)
+                        
+                        if (!validateUrl) { return res.status(400).send({ status: false, message: `This Link: ${longUrl} is not Valid URL.` }) }
+                        
+                        
+                        // =======================Get from redis=======================
+                        let cahcedProfileData = await GET_ASYNC(`${longUrl}`)
+                        
+                        if (cahcedProfileData) {
+                            let txt = JSON.parse(cahcedProfileData)
+                            return res.status(200).send({ status: true, data: txt })
+                        }                        
+                        
+                        let shortUrlId = shortid.generate().toLowerCase();
+                        let baseUrl = "http://localhost:3000/"
+                        let obj = {
+                            "urlCode": shortUrlId,
+                            "longUrl": longUrl,
+                            "shortUrl": baseUrl + shortUrlId
+                        }
 
-        if (cahcedProfileData) {
-            let txt = JSON.parse(cahcedProfileData)
-            res.status(200).send({ msg: "from get", status: true, data: txt })
-        } else {
+                        let findData = await urlModel.findOne({ longUrl: longUrl }).select({ _id: 0, __v: 0 })
 
-                    //========================================================
-
-        if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "Body can't be empty" })
-
-        if (!longUrl) return res.status(400).send({ status: false, message: "longUrl is required" })
-        if (!valid(longUrl)) return res.status(400).send({ status: false, message: "We cannot enter empty string" })
-
-        let option = {
-            method: 'get',
-            url: longUrl
-        }
-        let validateUrl = await axios(option)
-            .then(() => longUrl)
-            .catch(() => null)
-
-        if (!validateUrl) { return res.status(400).send({ status: false, message: `This Link: ${longUrl} is not Valid URL.` }) }
-
-            let shortUrlId = shortid.generate().toLowerCase();
-            let baseUrl = "http://localhost:3000/"
-            let obj = {
-                "urlCode": shortUrlId,
-                "longUrl": longUrl,
-                "shortUrl": baseUrl + shortUrlId
-            }
-
-           let findData = await urlModel.findOne({ longUrl: longUrl }).select({ _id: 0, __v: 0 })
-
-            if (findData) {
-                //================= create in redis===================
-                await SET_ASYNC(`${longUrl}`,60 * 5, JSON.stringify(findData))
-
-                return res.status(200).send({ status: true, message: findData })
-            }
+            if (findData) return res.status(200).send({ status: true, message: findData })
+            
             let final = await urlModel.create(obj);
+            //================= create in redis===================
+            await SET_ASYNC(`${longUrl}`,60 * 5, JSON.stringify(obj))
             res.status(201).send({ status: true, message: obj })
 
-        }
+        
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
     }
@@ -102,17 +102,17 @@ const urlShort = async (req, res) => {
 let getData = async (req, res) => {
     try {
 
+        let urlCode = req.params.urlCode
         let findLongUrl = await urlModel.findOne({ urlCode: urlCode });
         
         let cahcedProfileData = await GET_ASYNC(`${findLongUrl.longUrl}`)
 
         if (cahcedProfileData) {
             let txt = JSON.parse(cahcedProfileData)
-            // res.status(302).redirect(txt.longUrl)
-            res.status(200).send({msg: "from get",data: txt.longUrl})
+            res.status(302).redirect(txt.longUrl)
+            // res.status(200).send({msg: "from get",data: txt.longUrl})
         } else {
 
-            let urlCode = req.params.urlCode
             if (!shortid.isValid(urlCode)) return res.status(400).send({ status: false, message: "Please provide a valid URL code" })
 
             // let findLongUrl = await urlModel.findOne({ urlCode: urlCode });
