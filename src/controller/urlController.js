@@ -42,8 +42,8 @@ const urlShort = async (req, res) => {
   
   try {
     let data = req.body;
-    let {longUrl,...rest}=data
-    longUrl =longUrl.toString().trim(); 
+    let {longUrl}=data
+ 
     if (Object.keys(data).length == 0)
       return res.status(400).send({ status: false, message: "Body can't be empty" });
     if (Object.keys(data).length > 1) return res.status(400).send({ status: false, message: "Please Provide Only Long URL" })
@@ -84,7 +84,7 @@ const urlShort = async (req, res) => {
     let baseUrl = "http://localhost:3000/";
     let obj = {
       urlCode: shortUrlId,
-      longUrl: longUrl,
+      longUrl: longUrl.trim(),
       shortUrl: baseUrl + shortUrlId,
     };
 
