@@ -58,7 +58,7 @@ const urlShort = async (req, res) => {
 
     if (cahcedProfileData) {
       let txt = JSON.parse(cahcedProfileData);
-      return res.status(200).send({ status: true, data: txt });
+      return res.status(201).send({ status: true, data: txt });
     }
 
     let option = {
@@ -83,19 +83,19 @@ const urlShort = async (req, res) => {
     let shortUrlId = shortid.generate().toLowerCase();
     let baseUrl = "http://localhost:3000/";
     let obj = {
-      urlCode: shortUrlId,
       longUrl: longUrl.trim(),
       shortUrl: baseUrl + shortUrlId,
+      urlCode: shortUrlId
     };
 
     let findData = await urlModel.findOne({ longUrl: longUrl }).select({ _id: 0, __v: 0 });
     if (findData){
     await SET_ASYNC(`${longUrl}`, 60 * 5, JSON.stringify(findData));
-      return res.status(200).send({ status: true, message: findData });}
+      return res.status(201).send({ status: true, message: findData });}
 
     let final = await urlModel.create(obj);
     await SET_ASYNC(`${longUrl}`, 60 * 5, JSON.stringify(obj));
-    res.status(201).send({ status: true, message: obj });
+    res.status(201).send({ status: true, data: obj });
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
   }
