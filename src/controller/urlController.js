@@ -50,7 +50,7 @@ const urlShort = async (req, res) => {
     if (!longUrl)
       return res.status(400).send({ status: false, message: "longUrl is required" });
     if (!valid(longUrl))
-      return res.status(400).send({ status: false, message: "We cannot enter empty string" });
+      return res.status(400).send({ status: false, message: "You cannot enter empty string" });
      
        
     // =======================Get from redis=======================
