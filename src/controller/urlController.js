@@ -3,7 +3,6 @@ const shortid = require("shortid");
 const axios = require("axios");
 const redis = require("redis");
 const { promisify } = require("util");
-
 //=================validation===========================//
 
 const valid = function (value) {
