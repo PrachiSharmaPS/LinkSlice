@@ -4,8 +4,8 @@ const router = express.Router()
 const getEmployees  =require("../controller/test")
 const getTime  =require("../controller/timetake")
 
+router.post("/api/employees", getEmployees.getEmployees);
 router.get("/api/employees", getEmployees.getEmployees);
-
 router.get("/api/getTime", getTime.getTime);
 //router.post("/url/shorten",urlController.urlShort )
 
