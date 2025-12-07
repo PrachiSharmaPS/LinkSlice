@@ -9,7 +9,7 @@ app.use("/", route)
 
 /*
 mongoose.set('strictQuery', true);
-mongoose.connect("mongodb+srv://Lucifer:lucifer123@mycluster.bdqxxtr.mongodb.net/group11Database?retryWrites=true&w=majority",{
+mongoose.connect(process.env.MONGO_CLUSTER_LINK,{
     useNewUrlParser:true
 }).then(()=>console.log("MongoDB Connected"))
 .catch((err)=>console.log(err))
@@ -17,3 +17,4 @@ mongoose.connect("mongodb+srv://Lucifer:lucifer123@mycluster.bdqxxtr.mongodb.net
 app.listen(3000, ()=>{
     console.log("Server runnig on port",3000)
 })
+
